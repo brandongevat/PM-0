@@ -1,9 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #define MAX_PAS_LENGTH 500
-#define MAX_TEXT_LENGTH 500
-#define MAX_STACK_LENGTH 500
-#define MAX_INFILE_LENGTH 256
+#define MAX_FILE_NAME_LENGTH 256
 
 typedef struct instr {
     int OP;
@@ -16,7 +14,7 @@ instr IR;
 int PC;
 int BP;
 int SP;
-int pas[MAX_STACK_LENGTH];
+int pas[MAX_PAS_LENGTH];
 
 // Instruction Set Architecture abreviations (1-9). 
 const char ISA_ABRV[10][4] = {"", "LIT", "OPR", "LOD", "STO", "CAL", "INC", "JMP",
@@ -38,19 +36,25 @@ int base(int L) {
 
 // Driver code.
 int main(int argc, char *argv[]) {
-    char file_name[MAX_INFILE_LENGTH];
+    char file_name[MAX_FILE_NAME_LENGTH];
 
     // Take in args.
     if (argc == 2) {
         strcpy(file_name, argv[1]);
         // printf("%s\n", file_name); TEST
+    } else if (argc > 2) {
+        printf("Too many command line arguments given. Please try again.\n");
+        return 1;
+    } else {
+        printf ("Too few command line arguments given. Please try again.\n");
+        return 1;
     }
 
     FILE *in_file = fopen(file_name, "r"); 
     FILE *out_file = fopen("stacktrace.txt", "w");
    
-    int text_size = 0;
     // Read in text.
+    int text_size = 0;
     while (fscanf(in_file, "%d %d %d\n", &pas[text_size], &pas[text_size+1], &pas[text_size+2]) != EOF) {
         // printf("%d %d %d\n", cpu.text[i].OP, cpu.text[i].L, cpu.text[i].M);
         printf("%d %d %d\n", pas[text_size], pas[text_size+1], pas[text_size+2]);
@@ -66,7 +70,7 @@ int main(int argc, char *argv[]) {
     // Tracks the beginning of the stack.
     int stack_pos = SP + 1;
 
-    // Start formatting the pastrace.
+    // Start formatting the stacktrace.
     fprintf(out_file, "\t\t\tPC\tBP\tSP\tstack\n");
     fprintf(out_file, "Initial values:\t%d\t%d\t%d\n", PC, BP, SP);
     
@@ -253,5 +257,5 @@ int main(int argc, char *argv[]) {
     }
 
     fclose(out_file);
-    return 1;
+    return 0;
 }

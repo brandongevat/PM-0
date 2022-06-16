@@ -1,3 +1,5 @@
+// Author: Brandon Gevat - COP 3402
+
 #include <stdio.h>
 #include <string.h>
 #define MAX_PAS_LENGTH 500
@@ -21,7 +23,7 @@ const char ISA_ABRV[10][4] = {"", "LIT", "OPR", "LOD", "STO", "CAL", "INC", "JMP
                         "JPC", "SYS"};
 
 // Operations abreviations (0-12).
-const char OPR_ABRV[14][4] = {"RTN", "NEG", "ADD", "SUB", "MUL", "DIV", "ODD", "MOD", "EQL",
+const char OPR_ABRV[13][4] = {"RTN", "NEG", "ADD", "SUB", "MUL", "DIV", "MOD", "EQL",
                         "NEQ", "LSS", "LEQ", "GTR", "GEQ"};
 
 // Given base function.
@@ -71,7 +73,7 @@ int main(int argc, char *argv[]) {
     int stack_pos = SP + 1;
 
     // Start formatting the stacktrace.
-    fprintf(out_file, "\t\t\tPC\tBP\tSP\tstack\n");
+    fprintf(out_file, "\t\t\t\tPC\tBP\tSP\tstack\n");
     fprintf(out_file, "Initial values:\t%d\t%d\t%d\n", PC, BP, SP);
     
     int halt = 1;
@@ -128,59 +130,53 @@ int main(int argc, char *argv[]) {
                         pas[SP] = pas[SP] / pas[SP+1];
                         PC+=3;
                         break;
-                    // ODD:
-                    case 6:
-                        SP--;
-                        pas[SP] = pas[SP] % 2;
-                        PC+=3;
-                        break;
                     // MOD:
-                    case 7:
+                    case 6:
                         SP--;
                         pas[SP] = pas[SP] % pas[SP+1];
                         PC+=3;
                         break;
                     // EQL
-                    case 8:
+                    case 7:
                         SP--;
                         if (pas[SP] == pas[SP+1]) pas[SP] = 1;
                         else pas[SP] = 0;
                         PC+=3;
                         break;
                     // NEQL:
-                    case 9:
+                    case 8:
                         SP--;
                         if (pas[SP] != pas[SP+1]) pas[SP] = 1;
                         else pas[SP] = 0;
                         PC+=3;
                         break;
                     // LSS
-                    case 10:
+                    case 9:
                         SP--;
                         if (pas[SP] < pas[SP+1]) pas[SP] = 1;
                         else pas[SP] = 0;
                         PC+=3;
                         break;
                     // LEQ:
-                    case 11:
+                    case 10:
                         SP--;
                         if (pas[SP] <= pas[SP+1]) pas[SP] = 1;
                         else pas[SP] = 0;
                         PC+=3;
                         break;
                     // GTR:
-                    case 12:
+                    case 11:
                         SP--;
                         if (pas[SP] > pas[SP+1]) pas[SP] = 1;
                         else pas[SP] = 0;
                         PC+=3;
                         break;
                     // GEQ:
-                    case 13:
+                    case 12:
                         SP--;
                         if (pas[SP] > pas[SP+1]) pas[SP] = 1;
                         else pas[SP] = 0;
-                        PC+=3;
+                        PC += 3;
                         break;
                 }
                 break;
@@ -216,7 +212,7 @@ int main(int argc, char *argv[]) {
             // JPC:
             case 8:
                 if (pas[SP] == 0) PC = IR.M;
-                else PC+=3;
+                else PC += 3;
                 SP--;
                 break;
             // SYS:
@@ -227,31 +223,33 @@ int main(int argc, char *argv[]) {
                         printf("%d", pas[SP]);
                         fprintf(out_file, "Top of Stack Value: %d\n", pas[SP]);
                         SP--;
-                        PC+=3;
                         break;
                     // Read input from user & store at the top of the stack.
                     case 2:
                         SP++;
                         printf("Please enter an Integer: ");
                         scanf("%d", &pas[SP]);
-                        fprintf(out_file, "Please Enter an Integer: %d\n", pas[SP]);
-                        PC+=3;
+                        fprintf(out_file, "Please enter an Integer: %d\n", pas[SP]);
                         break;
                     // Halt flag to 0.
                     case 3:
                         halt = 0;
                         break;
                 }
+                PC+=3;
                 break;
         }
 
         // Format data
-        fprintf(out_file, "%s\t%d\t%d\t%d\t%d\t%d\t", IR.OP == 2 ? OPR_ABRV[IR.M] : ISA_ABRV[IR.OP], IR.L, IR.M, PC, BP, SP);
+        fprintf(out_file, "\t%s\t%d\t%d\t%d\t%d\t%d\t", IR.OP == 2 ? OPR_ABRV[IR.M] : ISA_ABRV[IR.OP], IR.L, IR.M, PC, BP, SP);
 
         // Format pas
         for (int i = stack_pos; i <= SP; i++) {
             if (BP != stack_pos && BP == i) fprintf(out_file, "| ");
-            fprintf(out_file, "%d ", pas[i]);
+                if (pas[i] > 9)
+                fprintf(out_file, "%d ", pas[i]);
+                else
+                fprintf(out_file, "%d  ", pas[i]);
         }
         fprintf(out_file, "\n");
     }
